@@ -1,0 +1,106 @@
+<?php
+//("localhost","root","","eform");
+class Database{
+    private $hostname = 'localhost';
+    private $username = 'root';
+    private $password = '';
+    private $databse = 'radix_timepass_db';
+    private $mysqli = "";
+    private $result = array();
+    private $conn = false;
+
+    public function __construct(){
+        if(!$this->conn){
+            $this->mysqli = new mysqli($this->hostname,$this->username,$this->password,$this->databse);
+            $this->conn = true ;
+            if($this->mysqli->connect_errno){
+                array_push($this->result,$this->mysqli->connect_error);
+                return false;
+            }
+        }else{
+            return true;
+        }
+    }
+
+    public function insertData($table,$params = array()){
+        if($this->tableExi($table)){
+            $values =  array_values($params);
+            $keys = array_keys($params);
+            $kes = implode(', ', $keys); 
+            $value = implode("', '", $values); 
+              
+            echo "<pre>";
+            print_r($values);
+
+            echo "<pre>";
+            print_r($keys);
+
+             $sql = "INSERT INTO $table($kes) VALUSE ('$value')";
+             if($this->mysqli->query($sql)){
+                array_push($this->result, $this->mysqli->insert_id);
+                return true;
+             }else{
+                array_push($this->result, $this->mysqli->error);
+                return false;
+             }
+        }else{      
+                return false;
+        }
+    }
+    public function getresult()
+    {
+        $val = $this->result;
+        $this->result = array();
+       
+        return $val;
+    }
+    private function tableExi($table){
+        $sql = " SHOW Tables FROM $this->databse like '$table'";
+        $tablename = $this->mysqli->query($sql);
+        if($tablename){
+            if($tablename->num_rows == 1){
+                return true;
+            }else{
+                array_push($this->result,$table."Table is Not EXist.");
+                return false;
+            }
+        }
+    }
+    
+    //Select Data
+    // function mysql_select($table,$selectdata = array(' AND '),$pera= '*') {
+
+    //     $values =  array_values($selectdata);
+    //     $keys = array_keys($selectdata);  
+
+    //     $dataSet = [];
+    //     foreach ($selectdata as $col => $val){
+    //         $temp = $col ."= '". $val."'";
+    //         array_push($dataSet,$temp);
+    //     }
+    //     $wherecondi =  $dataSet['0'].' AND '.$dataSet['1'];
+        
+    //     if($pera == '*'){
+    //         $query = 'SELECT '.$pera.' FROM `'.$table.'`';
+    //         $result =  mysqli_query($this->conn,$query);
+            
+    //     }else if(is_array($selectdata)){
+    //         $query =  "Select ".implode(',', $keys)." from ".$table.';';
+    //     }
+     
+    //     $result =  mysqli_query($this->conn,$query);
+    //     return $result;
+    // }    
+        public function __destruct(){
+            if($this->conn){
+                if($this->mysqli->close()){
+                    $this->conn = false;
+                    return true;
+                }
+            }else{
+                return false;
+            }
+        }
+}
+?>
+
