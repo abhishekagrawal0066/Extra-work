@@ -1,0 +1,16 @@
+ session_start();
+    include('../lib/database.php');    
+    // $firstname = $_POST['adminname'];
+    // $lastname = $_POST['adminpassword'];
+   
+    $obj = new Database();
+    // $alldata = array(
+    //     'student_firstname' => "Ads",
+    //     'student_lastname' => "dssf",
+       
+    // );
+    $obj->insertData('admin',["Abho" => "Asddsdf","ddAbho" => "dAsdf","dAdsbho" => "Adsdsdf"]);
+    echo "data Insert";
+
+    print_r( $obj->getresult() );
+    // echo "<pre>";
