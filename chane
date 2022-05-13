@@ -1,0 +1,118 @@
+session_start();
+// if (!isset($_SESSION['admin_name'])) {
+//     header("location: index.php");
+// }
+    include('../lib/database.php'); 
+
+    $obj = new crud();
+    // $countries = $obj->mysql_select("country");
+    // foreach ($countries as $country) {
+    //     $options .= "<option value='" . $country['country_id'] . "'>" . $country['country_name'] . "</option>";
+    // }
+
+    // $obj->mysql_insert('adi',array('admin_name' =>array('admin','PARAM_STR'),"admin_password" => array('Passs','PARAM_STR')));
+   
+   $obj->mysql_update('adi',array('admin_name' =>array('abhi', 'PARAM_STR'),"admin_password" => array('hello','PARAM_STR')),array('id'=>array("1", "=", "AND", "PARAM_STR"),'admin_name'=>array("admin", "=", "", "PARAM_STR")));
+        
+
+    if(isset($_POST['insert'])){
+
+
+
+<?php
+class crud
+{
+    // private $hostname = '192.168.102.154';
+    // private $username = 'root';
+    // private $password = 'deep70';
+    // private $databse = 'Databaseproject';
+    private $mysqli = "";
+    private $result = array();
+    public $conn;
+
+    public function __construct()
+    {
+        try {
+            $this->conn = new PDO("mysql:host=localhost;dbname=radix_timepass_db", 'root', '');
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            echo  "Connected successfully";
+        } catch (PDOException $e) {
+            echo "Connection failed: " . $e->getMessage();
+        }
+    }
+    // public function getLatestId()
+    // {
+    //     if(!$this->conn){
+    //         return false;
+    //     }else{
+    //         return mysqli_insert_id($this->conn);
+    //     }
+    // }
+    // function mysql_select($table, $column = [], $condi = [])
+    // {
+    //     $columns = implode(", ", $column);
+    //         foreach ($condi as $key) {
+    //             $condition[] = "$key ";
+    //         }
+    //     $cond = implode(" ", $condition);
+    //         if (count($column) == 0 && count($condi) == 0) {
+    //             $query = "SELECT * FROM $table;";
+    //         } elseif (count($column) == 0) {
+    //             $query = "SELECT * FROM $table WHERE $cond;";
+    //         } elseif (count($condi) == 0) {
+    //             $query = "SELECT $columns FROM $table;";
+    //         } else {    
+    //             $query = "SELECT $columns FROM $table WHERE $cond;";
+    //         }
+    //     $result = $this->conn->query($query);
+    //     return $result;
+    // }
+
+    public function mysql_insert($table, $addrecord)
+    {
+        $prepare = "";
+        foreach ($addrecord as $key => $values) {
+            $prepare .= ', :' . $key;
+        }
+        $rep = ltrim($prepare, ", ");
+        $key = array_keys($addrecord);
+        $kes = implode(", ", $key);
+        $pre = $this->conn->prepare("INSERT INTO $table ($kes) VALUES ($rep)");
+
+        foreach ($addrecord as $key => $value) {
+            $pre->bindParam(":" . $key, $value[0]);
+        }
+        $r = $pre->execute();
+        return $r;
+    }
+
+    // UPDATE `adi` SET `id`='$id',`admin_name`='$name',`admin_password`='$pass' WHERE is = 1;
+    function mysql_update($table, $updaterecord, $where)
+    {
+        echo "<pre>";
+        print_r($updaterecord);
+
+        echo "</pre>";
+        $prepare = "";
+        foreach ($updaterecord as $key => $value) {
+            $prepare .= ", " . $key . " = :" . $key . "_";
+        }
+        $rep = ltrim($prepare, ", ");
+        $whereclause = "";
+        foreach ($where as $keys => $values) {
+            $whereclause .= $keys . " " . $values[1] . " :" . $keys . " " . $values[2] . " ";
+        }
+
+        $pre = $this->conn->prepare('UPDATE ' . $table . ' SET ' . $rep . ' WHERE ' . $whereclause);
+        // echo 'UPDATE ' . $table . ' SET ' . $rep . ' WHERE ' . $whereclause;
+        // die;
+        foreach ($updaterecord as $key => $value) {
+            $pre->bindParam(":" . $key . "_", $value[0]);
+        }
+        foreach ($where as $key => $value) {
+            $pre->bindParam(":" . $key, $value[0]);
+        }
+        $R = $pre->execute();
+        return $R;
+    }
+}
